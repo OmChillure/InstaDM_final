@@ -1,10 +1,15 @@
+"use client"
 import { NavbarUserDashboard } from "@/components/layouts/Navbar";
 import { SidebarDesktop } from "@/components/layouts/Sidebar";
 import icons from "@/lib/icons";
 import { LayoutProps, sidebarOptionType } from "@/lib/types";
 import React from "react";
 
-const SidebarDesktopOptions: sidebarOptionType[] = [
+interface CustomSidebarOptionType extends sidebarOptionType {
+  onClick?: () => void;
+}
+
+const SidebarDesktopOptions: CustomSidebarOptionType[] = [
   {
     title: "Dashboard",
     navigateTo: "/dashboard",
@@ -29,6 +34,29 @@ const SidebarDesktopOptions: sidebarOptionType[] = [
     title: "Accounts",
     navigateTo: "/dashboard/accounts",
     icon: icons?.profile({}),
+  },
+  {
+    title: "CRM",
+    navigateTo: "/dashboard/crm",
+    icon: icons?.Blocks({}),
+  },
+  {
+    title: "Subscription",
+    navigateTo: "/dashboard/subscription",
+    icon: icons?.CircleDollarSign({}),
+  },
+  {
+    title: "Setting",
+    navigateTo: "/dashboard/setting",
+    icon: icons?.Settings({}),
+  },
+  {
+    title: "Extension",
+    navigateTo: "https://chromewebstore.google.com/detail/colddms/ffcepcgicipeaajceijngacfelhpgofe",
+    icon: icons?.AlignHorizontalJustifyCenterIcon({}),
+    onClick: () => {
+      console.log("Extension clicked");
+    },
   },
 ];
 
