@@ -12,6 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { sidebarOptionType } from "@/lib/types";
 import icons from "@/lib/icons";
+import { logout } from "@/actions/auth";
+import { getUserAuthDetails } from "@/lib/queries";
+import { useSession } from "next-auth/react";
 
 interface NavbarProps {
   sidebarMobileOptions: sidebarOptionType[];
@@ -20,6 +23,9 @@ interface NavbarProps {
 export const NavbarUserDashboard: React.FC<NavbarProps> = ({
   sidebarMobileOptions,
 }) => {
+
+  const {data, status} = useSession()
+
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 box-border">
       <Sheet>
@@ -42,13 +48,15 @@ export const NavbarUserDashboard: React.FC<NavbarProps> = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>John Snow</DropdownMenuLabel>
+          <DropdownMenuLabel>{data?.user?.name} <br/> {data?.user?.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>Pricing</DropdownMenuItem>
           <DropdownMenuItem>Start Writing with Us</DropdownMenuItem>
           {/* <DropdownMenuItem>Feedback</DropdownMenuItem> */}
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem onClick={()=>{
+            logout()
+          }}>Logout</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
