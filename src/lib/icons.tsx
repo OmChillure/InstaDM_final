@@ -1,4 +1,4 @@
-import { CircleUser, Home, Menu, MessagesSquare, Radio, Users } from "lucide-react";
+import { AlignHorizontalJustifyCenterIcon, Blocks, CircleDollarSign, CircleUser, Home, Menu, MessagesSquare, Radio, Settings,Users } from "lucide-react";
 import { iconType } from "./types";
 
 const icons = {
@@ -19,6 +19,18 @@ const icons = {
   ),
   menu: ({ size = 16, color = "#000", className }: iconType) => (
     <Menu size={size} color={color} className={className ?? ""} />
+  ),
+  CircleDollarSign: ({ size = 16, color = "#000", className }: iconType) => (
+    <CircleDollarSign size={size} color={color} className={className ?? ""} />
+  ),
+  Settings: ({ size = 16, color = "#000", className }: iconType) => (
+    <Settings size={size} color={color} className={className ?? ""} />
+  ),
+  Blocks: ({ size = 16, color = "#000", className }: iconType) => (
+    <Blocks size={size} color={color} className={className ?? ""} />
+  ),
+  AlignHorizontalJustifyCenterIcon: ({ size = 16, color = "#000", className }: iconType) => (
+    <AlignHorizontalJustifyCenterIcon size={size} color={color} className={className ?? ""} />
   ),
 };
 
