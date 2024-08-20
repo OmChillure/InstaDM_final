@@ -9,6 +9,7 @@ export const loginWithCreds = async (formData: {email:string, password:string}) 
     email: formData?.email,
     password: formData?.password,
     redirect: false,
+    callbackUrl:"/dashboard"
   };
 
   try {

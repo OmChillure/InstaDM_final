@@ -41,7 +41,7 @@ const Page: React.FC = () => {
   async function onSubmit(values: z.infer<typeof LoginUserSchema>) {
     try {
       await loginWithCreds(values);
-      router.replace("/dashboard");
+      router.replace('/dashboard');
     } catch (error) {
       console.log(error);
     }

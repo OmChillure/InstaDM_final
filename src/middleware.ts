@@ -8,14 +8,12 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
   const token = await getToken({ req: request });
 
-  if (token) {
-    if (url.pathname === "/sign-in" || url.pathname === "/sign-up") {
+  if (token && ["/sign-in","/sign-up"].includes(url.pathname)) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  } else {
-    if (url.pathname.startsWith("/dashboard")) {
+  }
+  
+  if (!token && url.pathname.startsWith("/dashboard")) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
-    }
   }
 }
 
