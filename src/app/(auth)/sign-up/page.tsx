@@ -24,9 +24,11 @@ import { z } from "zod";
 import Link from "next/link";
 import { loginWithCreds } from "@/actions/auth";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 const Signup = () => {
   const router = useRouter();
+  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(SignupUserSchema),
     defaultValues: {
@@ -37,7 +39,6 @@ const Signup = () => {
   });
 
   async function onSubmit(values: z.infer<typeof SignupUserSchema>) {
-    console.log(values);
     const response = await fetch("/api/auth/register", {
       method: "post",
       body: JSON.stringify(values),
@@ -45,8 +46,26 @@ const Signup = () => {
 
     if (response.ok) {
       const data = await response.json();
-      await loginWithCreds(data);
-      router.push("/dashboard");
+
+      if (data?.success) {
+        const res = await loginWithCreds(values);
+
+        if (res?.error) {
+          toast({
+            variant: "destructive",
+            title: res?.error,
+          });
+        } else {
+          router.replace("/dashboard");
+        }
+      }
+
+      else{
+        toast({
+          variant: "destructive",
+          title: data?.error,
+        });
+      }
     }
   }
 

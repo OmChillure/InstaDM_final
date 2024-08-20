@@ -1,3 +1,4 @@
+import { error } from "console";
 import { signIn, signOut } from "next-auth/react";
 
 export const logout = async () => {
@@ -13,11 +14,15 @@ export const loginWithCreds = async (formData: {email:string, password:string}) 
   };
 
   try {
-    await signIn("credentials", rawFormData);
+    const response = await signIn("credentials", rawFormData);
+
+    if(!response?.ok){
+      throw new Error(response?.error ?? "")
+    }
+
   } catch (error: any) {
-    console.log(error)
     if (error) {
-      switch (error.type) {
+      switch (error.message) {
         case "CredentialsSignin":
           return { error: "Invalid credentials!" };
         default:

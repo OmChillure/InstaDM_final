@@ -27,9 +27,11 @@ import { z } from "zod";
 import Link from "next/link";
 import { loginWithCreds } from "@/actions/auth";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 const Page: React.FC = () => {
   const router = useRouter();
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof LoginUserSchema>>({
     resolver: zodResolver(LoginUserSchema),
     defaultValues: {
@@ -40,8 +42,16 @@ const Page: React.FC = () => {
 
   async function onSubmit(values: z.infer<typeof LoginUserSchema>) {
     try {
-      await loginWithCreds(values);
-      router.replace('/dashboard');
+      const response = await loginWithCreds(values);
+
+      if (response?.error) {
+        toast({
+          variant: "destructive",
+          title: response?.error
+        });
+      } else {
+        router.replace("/dashboard");
+      }
     } catch (error) {
       console.log(error);
     }
