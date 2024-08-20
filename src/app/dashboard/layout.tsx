@@ -30,16 +30,16 @@ const SidebarDesktopOptions: CustomSidebarOptionType[] = [
     navigateTo: "/dashboard/messages",
     icon: icons?.messages({}),
   },
-  {
-    title: "Accounts",
-    navigateTo: "/dashboard/accounts",
-    icon: icons?.profile({}),
-  },
-  {
-    title: "CRM",
-    navigateTo: "/dashboard/crm",
-    icon: icons?.Blocks({}),
-  },
+  // {
+  //   title: "Accounts",
+  //   navigateTo: "/dashboard/accounts",
+  //   icon: icons?.profile({}),
+  // },
+  // {
+  //   title: "CRM",
+  //   navigateTo: "/dashboard/crm",
+  //   icon: icons?.Blocks({}),
+  // },
   {
     title: "Subscription",
     navigateTo: "/dashboard/subscription",
