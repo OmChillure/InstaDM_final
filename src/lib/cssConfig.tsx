@@ -1,9 +1,9 @@
 
 
 export const typoGraphy = {
-    text48normal: 'text-5xl '
+    text24Sb: 'text-2xl font-semibold',
+    textBaseSB: 'text-base font-semibold'
 }
-
 
 export const buttons = {
 

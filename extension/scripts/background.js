@@ -1,3 +1,20 @@
+const url =
+  "https://ttp.cbp.dhs.gov/schedulerapi/locations/?temporary=false&inviteOnly=false&operational=true&serviceName=Global+Entry";
+
+async function fetchData() {
+  const res = await fetch("http://localhost:3000/api", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: "yuvraj",
+    }),
+  });
+  let data = await res.json();
+  console.log(data);
+}
+
 function openInstagramDMTab(username, message) {
   chrome.tabs.query(
     { url: "https://www.instagram.com/direct/inbox/*" },
@@ -39,10 +56,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
   console.log("Instagram Helper installed");
-  openInstagramDMTab();
+  setInterval(() => {
+    
+  }, 5000);
+  await fetchData();
+  // openInstagramDMTab();
 });
 
 chrome.action.onClicked.addListener((tab) => {
@@ -60,9 +80,12 @@ chrome.runtime.onStartup.addListener(() => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "checkAuth") {
-    chrome.cookies.get({ url: 'https://www.instagram.com', name: 'ds_user_id' }, (cookie) => {
-      sendResponse({ isLoggedIn: !!cookie , username: "jay"});
-    });
-    return true; 
+    chrome.cookies.get(
+      { url: "https://www.instagram.com", name: "ds_user_id" },
+      (cookie) => {
+        sendResponse({ isLoggedIn: !!cookie, username: "jay" });
+      }
+    );
+    return true;
   }
 });
