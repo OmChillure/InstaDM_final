@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import DashboardWrapper from "@/components/hoc/DashboardPagesWrapper";
 import React from "react";
@@ -18,28 +18,42 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createCampaignSchema } from "@/schemas/campaigns";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Range } from 'react-range';
-// import {createCampaign} from "@/actions/"
+import { Range } from "react-range";
+import { createCampaign } from "@/actions/campaigns";
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
-    const form = useForm({
-        resolver: zodResolver(createCampaignSchema),
-        defaultValues: {
-          title: "",
-          description: "",
-          workingHours: [11,18],
-          messagesPerDay: [20,50],
-        },
+  const { data } = useSession();
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const form = useForm({
+    resolver: zodResolver(createCampaignSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      workingHours: [11, 18],
+      messagesPerDay: [20, 50],
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof createCampaignSchema>) {
+    try {
+      await createCampaign(values, data?.user?.id as string);
+      toast({
+        title: "Campaign Created Successfully",
       });
 
-      async function onSubmit(values: z.infer<typeof createCampaignSchema>) {
-        try {
-            // createCampaign
-            
-        } catch (error) {
-            
-        }
-      }
+      router.push("/dashboard/audiences");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: error?.message,
+      });
+    }
+  }
 
   return (
     <Form {...form}>
@@ -72,9 +86,7 @@ const Page = () => {
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Description
-                </FormLabel>
+                <FormLabel>Description</FormLabel>
                 <FormControl>
                   <Textarea placeholder="Describe the campaign" {...field} />
                 </FormControl>
@@ -129,73 +141,76 @@ const Page = () => {
             )}
           />
         </div> */}
-        
+
         <div>
-      <FormField
-        control={form?.control}
-        name="workingHours"
-        render={({ field }) => (
-            <FormItem className="space-y-12">
-            <FormLabel>Working Hours</FormLabel>
-            <Range
-              values={field?.value || [8, 22]}
-              step={1}
-              min={1}
-              max={24}
-              onChange={(values) => field.onChange(values)}
-              renderTrack={({ props, children }) => (
-                <div {...props} className="h-1 bg-gray-200 rounded-md">
-                  {children}
-                </div>
-              )}
-              renderThumb={({ props, index }) => (
-                <div
-                  {...props}
-                  className="w-4 h-4 bg-black rounded-full flex items-center justify-center"
-                >
-                  <span className="absolute -top-6 text-sm">{field.value[index]}:00</span>
-                </div>
-              )}
-            />
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </div>
+          <FormField
+            control={form?.control}
+            name="workingHours"
+            render={({ field }) => (
+              <FormItem className="space-y-12">
+                <FormLabel>Working Hours</FormLabel>
+                <Range
+                  values={field?.value || [8, 22]}
+                  step={1}
+                  min={1}
+                  max={24}
+                  onChange={(values) => field.onChange(values)}
+                  renderTrack={({ props, children }) => (
+                    <div {...props} className="h-1 bg-gray-200 rounded-md">
+                      {children}
+                    </div>
+                  )}
+                  renderThumb={({ props, index }) => (
+                    <div
+                      {...props}
+                      className="w-4 h-4 bg-black rounded-full flex items-center justify-center"
+                    >
+                      <span className="absolute -top-6 text-sm">
+                        {field.value[index]}:00
+                      </span>
+                    </div>
+                  )}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-    <div>
-      <FormField
-        control={form?.control}
-        name="messagesPerDay"
-        render={({ field }) => (
-          <FormItem className="space-y-14">
-            <FormLabel>Messages Per Day</FormLabel>
-            <Range
-              values={field?.value || [50, 70]}
-              step={1}
-              min={10}
-              max={100}
-              onChange={(values) => field.onChange(values)}
-              renderTrack={({ props, children }) => (
-                <div {...props} className="h-1 bg-gray-200 rounded-md">
-                  {children}
-                </div>
-              )}
-              renderThumb={({ props, index }) => (
-                <div
-                  {...props}
-                  className="w-4 h-4 bg-black rounded-full flex items-center justify-center"
-                >
-                  <span className="absolute -top-6 text-sm">{field.value[index]}</span>
-                </div>
-              )}
-            />
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </div>
-
+        <div>
+          <FormField
+            control={form?.control}
+            name="messagesPerDay"
+            render={({ field }) => (
+              <FormItem className="space-y-14">
+                <FormLabel>Messages Per Day</FormLabel>
+                <Range
+                  values={field?.value || [50, 70]}
+                  step={1}
+                  min={10}
+                  max={100}
+                  onChange={(values) => field.onChange(values)}
+                  renderTrack={({ props, children }) => (
+                    <div {...props} className="h-1 bg-gray-200 rounded-md">
+                      {children}
+                    </div>
+                  )}
+                  renderThumb={({ props, index }) => (
+                    <div
+                      {...props}
+                      className="w-4 h-4 bg-black rounded-full flex items-center justify-center"
+                    >
+                      <span className="absolute -top-6 text-sm">
+                        {field.value[index]}
+                      </span>
+                    </div>
+                  )}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="flex items-center justify-between">
           <Button type="reset" className="w-max">
