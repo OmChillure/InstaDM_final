@@ -1,13 +1,20 @@
-'use server'
+"use server";
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/options";
-import { getSession } from "next-auth/react";
+import db from "./db";
 
+export const getAllCampaigns = async (userId: string) => {
+  try {
+    const campaigns = await db.campaign.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-export const getUserAuthDetails = async () => {
-    const session = await getSession()
-
-    console.log(session)
-  
-    return session;
-  };
+    return campaigns;
+  } catch (error) {
+    throw new Error("Could not fetch campaigns")
+  }
+};
