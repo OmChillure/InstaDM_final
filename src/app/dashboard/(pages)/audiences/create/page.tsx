@@ -17,30 +17,87 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().optional(),
-  username: z.string().optional(),
-  csvFile: z.any().optional(),
-  instagramAccount: z.string().optional(),
-});
+import { createAudienceSchema } from "@/schemas/audience";
+import { useToast } from "@/components/ui/use-toast";
+import { createAudienceList } from "@/actions/audienceList";
+import { useRouter, useSearchParams } from "next/navigation";
+import Papa from "papaparse";
+import { AUDIENCE_TYPE } from "@/lib/constants";
+import { useSession } from "next-auth/react";
 
 function Page() {
-  const [selectedTab, setSelectedTab] = useState("raw");
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [rawUsernames, setRawUsernames] = useState("");
+  const {data} = useSession()
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createAudienceSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      workingHours: [8, 22],
-      messagesPerDay: [50, 70],
+      name: "",
+      desc: "",
+      userNames: [] as string[],
+      type: "RAW" as
+        | "RAW"
+        | "CSV"
+        | "FOLLOWERS"
+        | "FOLLOWINGS"
+        | "LIKES"
+        | "JSON",
+      parentUsernames: [] as string[],
     },
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
+  async function onSubmit(values: z.infer<typeof createAudienceSchema>) {
+    try {
+      if (values.type !== "CSV") {
+        values.parentUsernames = rawUsernames
+          .split("\n")
+          .map((uname) => uname.trim())
+          .filter((uname) => uname !== "");
+
+        if (values?.parentUsernames?.length === 0) {
+          throw new Error("Enter the accounts correctly");
+        }
+      } else {
+        if (values?.userNames?.length === 0) {
+          throw new Error("Found no user from csv file");
+        }
+      }
+
+      await createAudienceList(
+        values,
+        data?.user?.id as string,
+        searchParams.get("campaignId") || undefined
+      );
+      toast({
+        title: "List Initialized Successfully",
+      });
+
+      router.push("/dashboard/audiences");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: error?.message,
+      });
+    }
+  }
+
+  const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      Papa.parse(file, {
+        complete: (results) => {
+          const usernames = results.data
+            .flat()
+            .map((uname: any) => uname?.trim())
+            .filter((uname) => uname !== "");
+          form.setValue("userNames", usernames);
+        },
+        header: false,
+      });
+    }
   };
 
   return (
@@ -49,13 +106,14 @@ function Page() {
         onSubmit={form.handleSubmit(onSubmit)}
         onReset={() => {
           form.reset();
+          setRawUsernames("")
         }}
         className="w-full md:w-3/4 h-full flex flex-col gap-8 "
       >
         <div>
           <FormField
             control={form.control}
-            name="title"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>List Name</FormLabel>
@@ -71,7 +129,7 @@ function Page() {
         <div>
           <FormField
             control={form.control}
-            name="description"
+            name="desc"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Description</FormLabel>
@@ -85,97 +143,52 @@ function Page() {
         </div>
 
         <div>
-          <Tabs defaultValue="raw" onValueChange={(value) => setSelectedTab(value)}>
-            <TabsList className="justify-between mb-10">
-              <TabsTrigger value="csv">CSV</TabsTrigger>
-              <TabsTrigger value="raw">Raw</TabsTrigger>
-              <TabsTrigger value="json">JSON</TabsTrigger>
-              <TabsTrigger value="followers">Followers</TabsTrigger>
-              <TabsTrigger value="following">Following</TabsTrigger>
-              <TabsTrigger value="likes">Likes</TabsTrigger>
+          <Tabs
+            defaultValue="RAW"
+            onValueChange={(value: any) => form.setValue("type", value)}
+          >
+            <TabsList className="justify-between mb-5">
+              {AUDIENCE_TYPE?.map((e) => (
+                <TabsTrigger value={e} key={e}>
+                  {e}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
-            <TabsContent value="csv">
-              <FormField
-                control={form.control}
-                name="csvFile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload CSV</FormLabel>
-                    <FormControl>
-                      <Input type="file" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <TabsContent value="CSV">
+              <FormItem>
+                <FormLabel>Upload CSV</FormLabel>
+                <FormControl>
+                  <Input type="file" onChange={handleCSVUpload} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             </TabsContent>
 
-            <TabsContent value="raw">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Usernames</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="One username per line"
-                        rows={6}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </TabsContent>
-
-            <TabsContent value="json">
-              <FormField
-                control={form.control}
-                name="jsonFile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Upload JSON</FormLabel>
-                    <FormControl>
-                      <Input type="file" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </TabsContent>
-
-            {["followers", "following", "likes"].map((type) => (
+            {["FOLLOWERS", "FOLLOWINGS", "LIKES", "RAW"].map((type) => (
               <TabsContent key={type} value={type}>
-                <FormField
-                  control={form.control}
-                  name="instagramAccount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instagram Account</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={`Enter Instagram account to fetch ${type}`}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormItem>
+                  <FormLabel>Instagram Usernames</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="One username per line"
+                      rows={6}
+                      value={rawUsernames}
+                      onChange={(e) => setRawUsernames(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               </TabsContent>
             ))}
           </Tabs>
         </div>
 
-
-        <div className="flex items-center justify-between mt-8">
+        <div className="flex items-center justify-between">
           <Button type="reset" className="w-max">
             Reset
           </Button>
-          <Button type="submit" className="w-max">
+          <Button type="submit" className="w-max" disabled={form?.formState?.isSubmitting}>
             Save & Next
           </Button>
         </div>

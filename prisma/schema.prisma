@@ -17,136 +17,101 @@ model User {
   updatedAt DateTime @updatedAt
 
   campaigns Campaign[] @relation("UserCampaigns")
+  lists AudienceList[]
 
   @@map("user")
 }
 
 model Campaign {
-  id               String                     @id @default(uuid())
-  title            String
-  description      String?
-  workingHours     Int[]
-  messagesPerDay   Int[]
-  userId           String
-  user             User                       @relation("UserCampaigns", fields: [userId], references: [id])
+  id             String  @id @default(uuid())
+  title          String
+  description    String?
+  workingHours   Int[]
+  messagesPerDay Int[]
 
-  lists            AudienceList[]             @relation("CampaignAudienceLists")
-  messages         Message[]                  @relation("CampaignMessages")
-  followUps        FollowUp[]                 @relation("CampaignFollowUps")
-  userInteractions CampaignUserInteraction[]  @relation("CampaignUserInteractions")
+  userId         String
+  user           User    @relation("UserCampaigns", fields: [userId], references: [id])
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  lists            AudienceList[]            @relation("CampaignAudienceLists")
+  messages         Message[]                 @relation("CampaignMessages")
+  followUps        FollowUp[]                @relation("CampaignFollowUps")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("campaigns")
 }
 
 model AudienceList {
-  id          String         @id @default(uuid())
-  name        String
-  campaignId  String?
-  campaign    Campaign?      @relation("CampaignAudienceLists", fields: [campaignId], references: [id])
+  id        String   @id @default(uuid())
+  name      String
+  desc      String?
+  userNames String[]
 
-  users       AudienceUser[] @relation("AudienceListUsers")
+  type            AudienceListType
+  parentUsernames String[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId         String
+  user           User    @relation(fields: [userId], references: [id])
+
+  campaigns Campaign[] @relation("CampaignAudienceLists")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("audienceLists")
 }
 
-model AudienceUser {
-  id                String                     @id @default(uuid())
-  username          String
-  name              String?
-  type              AudienceUserType               
-
-  lists             AudienceList[]             @relation("AudienceListUsers")
-  userInteractions  CampaignUserInteraction[]  @relation("AudienceUserInteractions")
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@map("audienceUsers")
-}
-
 model Message {
-  id               String             @id @default(uuid())
-  campaignId       String
-  campaign         Campaign           @relation("CampaignMessages", fields: [campaignId], references: [id])
+  id         String   @id @default(uuid())
+  campaignId String
+  campaign   Campaign @relation("CampaignMessages", fields: [campaignId], references: [id])
 
-  variants         MessageVariant[]   @relation("MessageVariants")
+  variants MessageVariant[] @relation("MessageVariants")
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("messages")
 }
 
 model MessageVariant {
-  id                String                     @id @default(uuid())
-  message           String
-  variables         String[]
-  parentMessageId   String
-  parentMessage     Message                    @relation("MessageVariants", fields: [parentMessageId], references: [id])
+  id              String   @id @default(uuid())
+  message         String
+  variables       String[]
+  parentMessageId String
+  parentMessage   Message  @relation("MessageVariants", fields: [parentMessageId], references: [id])
 
-  campaignUserInteractions CampaignUserInteraction[] @relation("MessageVariantInteractions")
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("messageVariants")
 }
 
 model FollowUp {
-  id               String             @id @default(uuid())
-  campaignId       String
-  campaign         Campaign           @relation("CampaignFollowUps", fields: [campaignId], references: [id])
+  id         String   @id @default(uuid())
+  campaignId String
+  campaign   Campaign @relation("CampaignFollowUps", fields: [campaignId], references: [id])
 
-  variants         FollowUpVariant[]  @relation("FollowUpVariants")
+  variants FollowUpVariant[] @relation("FollowUpVariants")
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("followUps")
 }
 
 model FollowUpVariant {
-  id                String                     @id @default(uuid())
-  message           String
-  variables         String[]                   // Variables that can be included in the follow-up message
-  followUpId        String
-  followUp          FollowUp                   @relation("FollowUpVariants", fields: [followUpId], references: [id])
+  id         String   @id @default(uuid())
+  message    String
+  variables  String[] // Variables that can be included in the follow-up message
+  followUpId String
+  followUp   FollowUp @relation("FollowUpVariants", fields: [followUpId], references: [id])
 
-  campaignUserInteractions CampaignUserInteraction[] @relation("FollowUpVariantInteractions")
-
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("followUpVariants")
-}
-
-model CampaignUserInteraction {
-  id                String             @id @default(uuid())
-  campaignId        String
-  campaign          Campaign           @relation("CampaignUserInteractions", fields: [campaignId], references: [id])
-
-  audienceUserId    String
-  audienceUser      AudienceUser       @relation("AudienceUserInteractions", fields: [audienceUserId], references: [id])
-
-  messageVariantId  String?
-  messageOption     MessageVariant?    @relation("MessageVariantInteractions", fields: [messageVariantId], references: [id])
-
-  followUpVariantId String?
-  followUpVariant   FollowUpVariant?   @relation("FollowUpVariantInteractions", fields: [followUpVariantId], references: [id])
-
-  interactionType   InteractionType 
-  followUpStep      Int?               // Tracks which follow-up step this is (e.g., 1st follow-up, 2nd follow-up)
-
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-
-  @@map("campaignUserInteractions")
 }
 
 enum InteractionType {
@@ -154,8 +119,11 @@ enum InteractionType {
   FOLLOW_UP
 }
 
-enum AudienceUserType {
-  ACCOUNT_FOLLOWER
-  FROM_COMMENT
-  FROM_LIKES
+enum AudienceListType {
+  CSV
+  JSON
+  FOLLOWERS
+  FOLLOWINGS
+  LIKES
+  RAW
 }

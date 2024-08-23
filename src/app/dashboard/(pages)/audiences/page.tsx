@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import icons from "@/lib/icons";
 import useQueries from "@/hooks/useQueries";
-import { getAllCampaigns } from "@/lib/queries";
+import { getAllAudienceLists, getAllCampaigns } from "@/lib/queries";
 import { useSession } from "next-auth/react";
 import {
   DropdownMenu,
@@ -27,12 +27,12 @@ function Page() {
   const router = useRouter()
 
   const {
-    data: campaignData,
+    data: listsData,
     loading,
     error,
     refetch,
   } = useQueries({
-    fn: getAllCampaigns, // Pass the function reference
+    fn: getAllAudienceLists, // Pass the function reference
     params: [data?.user?.id as string], // Pass the parameters as an array
   });
 
@@ -46,23 +46,26 @@ function Page() {
               <TableCell>User Counts</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Last updated at</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {campaignData?.map((campaign) => (
-              <TableRow key={campaign?.id} className="cursor-pointer h-14">
-                <TableCell>{campaign?.title}</TableCell>
-                <TableCell>{campaign?.messagesSent}</TableCell>
-                <TableCell>{campaign?.repliesReceived}</TableCell>
+            {listsData?.map((list) => (
+              <TableRow key={list?.id} className="cursor-pointer h-14">
+                <TableCell>{list?.name}</TableCell>
+                <TableCell>{list?.userNames?.length}</TableCell>
+                <TableCell>{list?.type}</TableCell>
+                <TableCell>{new Date(list?.updatedAt).toLocaleString()}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger>
                       <EllipsisVertical />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={()=>{router.push(`/dashboard/audiences?campaign=${campaign?.id}`)}}>Manage Targets</DropdownMenuItem>
-                      <DropdownMenuItem onClick={()=>{router.push(`/dashboard/messages?campaign=${campaign?.id}`)}}>Manage Messages</DropdownMenuItem>
+                      {/* <DropdownMenuItem onClick={()=>{router.push(`/dashboard/audiences?campaign=${campaign?.id}`)}}>Manage Targets</DropdownMenuItem>
+                      <DropdownMenuItem onClick={()=>{router.push(`/dashboard/messages?campaign=${campaign?.id}`)}}>Manage Messages</DropdownMenuItem> */}
                       <DropdownMenuItem>Launch</DropdownMenuItem>
+                      <DropdownMenuItem>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
