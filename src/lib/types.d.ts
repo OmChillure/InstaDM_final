@@ -15,3 +15,8 @@ type iconType = {
     color?:string,
     className?:string
 }
+
+type DialogSliceType = {
+    open: boolean,
+    child: ReactNode
+}

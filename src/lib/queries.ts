@@ -15,7 +15,7 @@ export const getAllCampaigns = async (userId: string) => {
 
     return campaigns;
   } catch (error) {
-    throw new Error("Could not fetch campaigns")
+    throw new Error("Could not fetch campaigns");
   }
 };
 
@@ -23,7 +23,7 @@ export const getAllAudienceLists = async (userId: string) => {
   try {
     const lists = await db.audienceList.findMany({
       where: {
-        userId: userId
+        userId: userId,
       },
       orderBy: {
         createdAt: "desc",
@@ -32,6 +32,23 @@ export const getAllAudienceLists = async (userId: string) => {
 
     return lists;
   } catch (error) {
-    throw new Error("Could not fetch audience lists")
+    throw new Error("Could not fetch audience lists");
+  }
+};
+
+export const getCampignAudienceLists = async (campaignId: string) => {
+  try {
+    const campaign = await db.campaign.findUnique({
+      where: {
+        id: campaignId,
+      },
+      include: {
+        lists: true,
+      }
+    });
+
+    return campaign?.lists;
+  } catch (error) {
+    throw new Error("Could not fetch audience lists");
   }
 };

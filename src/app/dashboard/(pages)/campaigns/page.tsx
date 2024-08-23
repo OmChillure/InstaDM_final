@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import icons from "@/lib/icons";
-import useQueries from "@/hooks/useQueries";
+import { useAppDispatch, useQueries } from "@/lib/hooks";
 import { getAllCampaigns } from "@/lib/queries";
 import { useSession } from "next-auth/react";
 import {
@@ -21,10 +21,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { setOpenDialog } from "@/lib/features/dialogSlice";
+import SelectAudienceForm from "@/components/Dialogs/selectAudience";
 
 function Page() {
   const { data } = useSession();
-  const router = useRouter()
+  const router = useRouter();
 
   const {
     data: campaignData,
@@ -35,6 +37,8 @@ function Page() {
     fn: getAllCampaigns, // Pass the function reference
     params: [data?.user?.id as string], // Pass the parameters as an array
   });
+
+  const dispatch = useAppDispatch();
 
   return (
     <div>
@@ -60,8 +64,27 @@ function Page() {
                       <EllipsisVertical />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      <DropdownMenuItem onClick={()=>{router.push(`/dashboard/audiences?campaign=${campaign?.id}`)}}>Manage Targets</DropdownMenuItem>
-                      <DropdownMenuItem onClick={()=>{router.push(`/dashboard/messages?campaign=${campaign?.id}`)}}>Manage Messages</DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          dispatch(
+                            setOpenDialog({
+                              open: true,
+                              child: <SelectAudienceForm id={campaign?.id}/>,
+                            })
+                          );
+                        }}
+                      >
+                        Manage Targets
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          router.push(
+                            `/dashboard/messages?campaign=${campaign?.id}`
+                          );
+                        }}
+                      >
+                        Manage Messages
+                      </DropdownMenuItem>
                       <DropdownMenuItem>Launch</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

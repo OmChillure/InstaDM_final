@@ -10,7 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import icons from "@/lib/icons";
-import useQueries from "@/hooks/useQueries";
+import {useQueries} from "@/lib/hooks";
 import { getAllAudienceLists, getAllCampaigns } from "@/lib/queries";
 import { useSession } from "next-auth/react";
 import {
