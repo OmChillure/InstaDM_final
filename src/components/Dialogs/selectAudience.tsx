@@ -33,7 +33,7 @@ const SelectAudienceForm = ({ id }: { id: string }) => {
   const dispatch = useAppDispatch();
   const { toast } = useToast();
 
-  const handleSelect = (value) => {
+  const handleSelect = (value:string) => {
     setSelectedValues((prevSelected) =>
       prevSelected.includes(value)
         ? prevSelected.filter((v) => v !== value)
@@ -71,7 +71,7 @@ const SelectAudienceForm = ({ id }: { id: string }) => {
       await connectAudienceListToCampaign({
         audienceListId: selectedValues,
         campaignId: id,
-        userId: data?.user?.id,
+        userId: data?.user?.id as string,
       });
       toast({
         title: "List(s) Added Successfully",
@@ -109,7 +109,7 @@ const SelectAudienceForm = ({ id }: { id: string }) => {
           <Command className="w-[450px]">
             <CommandInput
               placeholder="Search lists..."
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onValueChange={(e) => setSearchTerm(e)}
             />
             <CommandList>
               <CommandEmpty>No lists found.</CommandEmpty>

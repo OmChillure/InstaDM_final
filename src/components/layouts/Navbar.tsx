@@ -10,10 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { sidebarOptionType } from "@/lib/types";
+import { sidebarOptionType } from "@/types/types";
 import icons from "@/lib/icons";
 import { logout } from "@/actions/auth";
-import { getUserAuthDetails } from "@/lib/queries";
 import { useSession } from "next-auth/react";
 
 interface NavbarProps {

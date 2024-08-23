@@ -2,7 +2,7 @@
 import { NavbarUserDashboard } from "@/components/layouts/Navbar";
 import { SidebarDesktop } from "@/components/layouts/Sidebar";
 import icons from "@/lib/icons";
-import { LayoutProps, sidebarOptionType } from "@/lib/types";
+import { LayoutProps, sidebarOptionType } from "@/types/types";
 import React from "react";
 
 interface CustomSidebarOptionType extends sidebarOptionType {

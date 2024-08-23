@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { sidebarOptionType } from "@/lib/types";
+import { sidebarOptionType } from "@/types/types";
 
 interface SidebarProps {
   optionsArray: sidebarOptionType[];

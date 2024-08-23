@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import {DialogSliceType} from "../types"
+import {DialogSliceType} from "../../types/types"
 import { ReactNode } from "react";
 
 const initialState: DialogSliceType = {

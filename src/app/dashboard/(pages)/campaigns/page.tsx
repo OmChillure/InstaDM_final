@@ -56,8 +56,8 @@ function Page() {
             {campaignData?.map((campaign) => (
               <TableRow key={campaign?.id} className="cursor-pointer h-14">
                 <TableCell>{campaign?.title}</TableCell>
-                <TableCell>{campaign?.messagesSent}</TableCell>
-                <TableCell>{campaign?.repliesReceived}</TableCell>
+                <TableCell>--</TableCell>
+                <TableCell>--</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger>
