@@ -61,10 +61,6 @@ export const connectAudienceListToCampaign = async ({
 
     const existingListIds = campaign.lists.map((list) => list.id);
 
-    if (existingListIds.some((id) => audienceListId.includes(id))) {
-      throw new Error("List is already included in campaign!!");
-    }
-
     await db.campaign.update({
       where: { id: campaignId },
       data: {

@@ -1,18 +1,23 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useDispatch, useSelector, useStore } from 'react-redux';
-import type { RootState, AppDispatch, AppStore } from './store';
+import { useDispatch, useSelector, useStore } from "react-redux";
+import type { RootState, AppDispatch, AppStore } from "./store";
 
 type UseQueriesProps<T, P extends any[]> = {
   fn: (...params: P) => Promise<T>;
   params?: Partial<P>; // Allow params to be undefined or an array with fewer elements
 };
 
-export const useQueries = <T, P extends any[]>({ fn, params = [] as unknown as P }: UseQueriesProps<T, P>) => {
+export const useQueries = <T, P extends any[]>({
+  fn,
+  params = [] as unknown as P,
+}: UseQueriesProps<T, P>) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  const stableParams = JSON.stringify(params); // Serialize params to check for changes
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -25,7 +30,7 @@ export const useQueries = <T, P extends any[]>({ fn, params = [] as unknown as P
     } finally {
       setLoading(false);
     }
-  }, [fn, params]);
+  }, [fn, stableParams]); // Use stableParams instead of params directly
 
   useEffect(() => {
     fetchData();

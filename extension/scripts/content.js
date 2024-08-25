@@ -3,7 +3,7 @@ function findElementsByText(text, selector = "*") {
   return Array.from(elements).filter((element) =>
     element.textContent.trim().toLowerCase().includes(text.toLowerCase())
   );
-}
+}  
 
 function findNewMessageButton() {
   console.log("Searching for New Message button...");
@@ -107,21 +107,15 @@ function simulateTyping(message, initialDelay = 2000, typingDelay = 100) {
 
     waitForMessageDiv().then((messageDiv) => {
       console.log("Message div found:", messageDiv);
-
-      // Clear existing content
       messageDiv.innerHTML = "";
       console.log("Cleared existing content");
 
       const typeNextChar = (index) => {
         if (index < message.length) {
           messageDiv.focus();
-
-          // Insert the character using execCommand
           document.execCommand("insertText", false, message[index]);
 
           console.log("Typed character:", message[index]);
-
-          // Dispatch input event
           messageDiv.dispatchEvent(new Event("input", { bubbles: true }));
 
           setTimeout(() => typeNextChar(index + 1), typingDelay);
@@ -164,7 +158,6 @@ async function getAllFollowerUsernames() {
 function getUserLinksAndUsernames() {
   const linkAnchors = document.querySelectorAll('a[role="link"]');
 
-  // List of unwanted usernames
   const unwantedUsernames = [
     'Privacy',
     'Terms',
@@ -298,7 +291,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "checkAuth") {
-      // This selector is usually where the logged-in user's profile link appears
       const usernameElement = document.querySelector('a[href^="/"] > div > span');
 
       let username = null;
@@ -311,9 +303,53 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
+function waitForElement(selector, timeout = 5000) {
+  return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+      const interval = setInterval(() => {
+          const element = document.querySelector(selector);
+          if (element) {
+              clearInterval(interval);
+              resolve(element);
+          } else if (Date.now() - startTime > timeout) {
+              clearInterval(interval);
+              reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+          }
+      }, 100);
+  });
+}
 
+function openFollowersDialog(username) {
+  console.log(`Attempting to open followers dialog for ${username}`);
+  waitForElement(`a[href="/${username}/followers/"]`)
+      .then(followersLink => {
+          console.log("Followers link found, clicking...");
+          followersLink.click();
+      })
+      .catch(() => {
+          console.log("Followers link not found in header, trying alternative method...");
+          return waitForElement('div[role="dialog"]');
+      })
+      .then(dialogElement => {
+          if (dialogElement) {
+              console.log("Dialog element found, looking for followers button...");
+              const followersButton = dialogElement.querySelector(`a[href="/${username}/followers/"]`);
+              if (followersButton) {
+                  console.log("Followers button found in dialog, clicking...");
+                  followersButton.click();
+              } else {
+                  throw new Error("Followers button not found within dialog");
+              }
+          }
+      })
+      .catch(error => {
+          console.error("Failed to open followers dialog:", error);
+          alert("Couldn't open followers dialog. Please make sure you're on the correct profile page and try again.");
+      });
+}
 
-
-
-
-
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "openFollowersDialog") {
+      openFollowersDialog(request.username);
+  }
+});

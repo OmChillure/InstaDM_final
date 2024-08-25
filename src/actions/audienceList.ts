@@ -4,6 +4,7 @@ import z from "zod";
 import db from "@/lib/db";
 import { createAudienceSchema } from "@/schemas/audience";
 import { AudienceList } from "@prisma/client";
+import { createTasks } from "./tasks";
 
 export const createAudienceList = async (
   {
@@ -55,9 +56,51 @@ export const createAudienceList = async (
         },
       });
     }
+
+    // create a new task to it -----------
+    if(["FOLLOWERS","FOLLOWINGS","LIKES"].includes(type)){
+      await createTasks({
+        type: type === "FOLLOWERS" ? "GET_FOLLOWERS" : type === "FOLLOWINGS" ? "GET_FOLLOWINGS" :  "GET_LIKES",
+        listId: audienceList?.id
+      },userId)
+    }
+
     return audienceList;
-  } catch (error) {
+  } catch (error:any) {
     console.log(error);
-    throw new Error("Failed to create audience list");
+    throw new Error(error?.message ?? "Failed to create audience list");
+  }
+};
+
+export const addUsersInList = async (
+  listId:string,
+  userNames: string[]
+) => {
+  try {
+    const list = await db.audienceList.findUnique({
+      where:{
+        id:listId
+      }
+    })
+
+    if(!list){
+      throw new Error("List not found!!!")
+    }
+
+    const foundData = [...userNames, ...list?.userNames?.filter((e)=>userNames?.some((usr)=>(usr !== e)))]
+
+    await db.audienceList.update({
+      where:{
+        id: listId
+      },
+      data:{
+        userNames: foundData
+      }
+    })
+
+    return list;
+  } catch (error:any) {
+    console.log(error);
+    throw new Error(error?.message ?? "Failed to update audience list");
   }
 };

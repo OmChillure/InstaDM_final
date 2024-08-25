@@ -1,26 +1,8 @@
-const url =
-  "https://ttp.cbp.dhs.gov/schedulerapi/locations/?temporary=false&inviteOnly=false&operational=true&serviceName=Global+Entry";
-
-async function fetchData() {
-  const res = await fetch("http://localhost:3000/api", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username: "yuvraj",
-    }),
-  });
-  let data = await res.json();
-  console.log(data);
-}
-
 function openInstagramDMTab(username, message) {
   chrome.tabs.query(
     { url: "https://www.instagram.com/direct/inbox/*" },
     (tabs) => {
       if (tabs.length === 0) {
-        // If no Instagram DM tab is open, create a new one and pass the username and message
         chrome.tabs.create(
           { url: "https://www.instagram.com/direct/inbox/" },
           (newTab) => {
@@ -37,7 +19,6 @@ function openInstagramDMTab(username, message) {
           }
         );
       } else {
-        // If an Instagram DM tab exists, activate it and send the username and message
         chrome.tabs.update(tabs[0].id, { active: true }, () => {
           chrome.tabs.sendMessage(tabs[0].id, {
             action: "sendMessage",
@@ -56,13 +37,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-chrome.runtime.onInstalled.addListener(async () => {
+
+chrome.runtime.onInstalled.addListener(() => {
   console.log("Instagram Helper installed");
-  setInterval(() => {
-    
-  }, 5000);
-  await fetchData();
-  // openInstagramDMTab();
+  openInstagramDMTab();
 });
 
 chrome.action.onClicked.addListener((tab) => {
@@ -73,19 +51,52 @@ chrome.action.onClicked.addListener((tab) => {
   }
 });
 
-// Listen for extension startup
 chrome.runtime.onStartup.addListener(() => {
   openInstagramDMTab();
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "checkAuth") {
-    chrome.cookies.get(
-      { url: "https://www.instagram.com", name: "ds_user_id" },
-      (cookie) => {
-        sendResponse({ isLoggedIn: !!cookie, username: "jay" });
+    chrome.cookies.get({ url: 'https://www.instagram.com', name: 'ds_user_id' }, (cookie) => {
+      sendResponse({ isLoggedIn: !!cookie });
+    });
+    return true; 
+  }
+});
+
+function openInstagramFollowersTab(username) {
+  const userNames = [];
+  const url = `https://www.instagram.com/${username}/`;
+  chrome.tabs.query({ url: "https://www.instagram.com/*" }, (tabs) => {
+      if (tabs.length === 0) {
+          chrome.tabs.create({ url: url }, (newTab) => {
+              chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+                  if (tabId === newTab.id && info.status === "complete") {
+                      setTimeout(() => {
+                          chrome.tabs.sendMessage(newTab.id, {
+                              action: "openFollowersDialog",
+                              username: username
+                          });
+                      }, 2000);
+                      chrome.tabs.onUpdated.removeListener(listener);
+                  }
+              });
+          });
+      } else {
+          chrome.tabs.update(tabs[0].id, { url: url, active: true }, () => {
+              setTimeout(() => {
+                  chrome.tabs.sendMessage(tabs[0].id, {
+                      action: "openFollowersDialog",
+                      username: username
+                  });
+              }, 2000);
+          });
       }
-    );
-    return true;
+  });
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "openFollowers") {
+      openInstagramFollowersTab(request.username);
   }
 });

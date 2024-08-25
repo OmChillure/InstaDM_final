@@ -62,8 +62,6 @@ function Page() {
                       <EllipsisVertical />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {/* <DropdownMenuItem onClick={()=>{router.push(`/dashboard/audiences?campaign=${campaign?.id}`)}}>Manage Targets</DropdownMenuItem>
-                      <DropdownMenuItem onClick={()=>{router.push(`/dashboard/messages?campaign=${campaign?.id}`)}}>Manage Messages</DropdownMenuItem> */}
                       <DropdownMenuItem>Launch</DropdownMenuItem>
                       <DropdownMenuItem>Delete</DropdownMenuItem>
                     </DropdownMenuContent>
