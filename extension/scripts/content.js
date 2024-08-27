@@ -303,21 +303,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-function waitForElement(selector, timeout = 5000) {
-  return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-      const interval = setInterval(() => {
-          const element = document.querySelector(selector);
-          if (element) {
-              clearInterval(interval);
-              resolve(element);
-          } else if (Date.now() - startTime > timeout) {
-              clearInterval(interval);
-              reject(new Error(`Element ${selector} not found within ${timeout}ms`));
-          }
-      }, 100);
-  });
-}
+// function waitForElement(selector, timeout = 5000) {
+//   return new Promise((resolve, reject) => {
+//       const startTime = Date.now();
+//       const interval = setInterval(() => {
+//           const element = document.querySelector(selector);
+//           if (element) {
+//               clearInterval(interval);
+//               resolve(element);
+//           } else if (Date.now() - startTime > timeout) {
+//               clearInterval(interval);
+//               reject(new Error(`Element ${selector} not found within ${timeout}ms`));
+//           }
+//       }, 100);
+//   });
+// }
 
 function openFollowersDialog(username) {
   console.log(`Attempting to open followers dialog for ${username}`);
