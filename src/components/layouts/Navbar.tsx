@@ -1,7 +1,6 @@
 import React from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { SidebarMobile } from "./Sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { sidebarOptionType } from "@/types/types";
+import { sidebarOptionType } from "@/lib/types";
 import icons from "@/lib/icons";
 import { logout } from "@/actions/auth";
 import { useSession } from "next-auth/react";
@@ -34,9 +33,6 @@ export const NavbarUserDashboard: React.FC<NavbarProps> = ({
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left">
-          <SidebarMobile optionsArray={sidebarMobileOptions} />
-        </SheetContent>
       </Sheet>
       <div className="w-full flex-1"></div>
       <DropdownMenu>
@@ -48,10 +44,6 @@ export const NavbarUserDashboard: React.FC<NavbarProps> = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>{data?.user?.name} <br/> {data?.user?.email}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>Pricing</DropdownMenuItem>
-          <DropdownMenuItem>Start Writing with Us</DropdownMenuItem>
-          {/* <DropdownMenuItem>Feedback</DropdownMenuItem> */}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={()=>{
             logout()

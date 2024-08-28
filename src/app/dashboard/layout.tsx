@@ -1,8 +1,8 @@
 "use client"
 import { NavbarUserDashboard } from "@/components/layouts/Navbar";
-import { SidebarDesktop } from "@/components/layouts/Sidebar";
+import Sidebar from "@/components/layouts/Sidebar";
 import icons from "@/lib/icons";
-import { LayoutProps, sidebarOptionType } from "@/types/types";
+import { LayoutProps, sidebarOptionType } from "@/lib/types";
 import React from "react";
 
 interface CustomSidebarOptionType extends sidebarOptionType {
@@ -16,39 +16,24 @@ const SidebarDesktopOptions: CustomSidebarOptionType[] = [
     icon: icons?.home({}),
   },
   {
-    title: "Campaigns",
-    navigateTo: "/dashboard/campaigns",
-    icon: icons?.broadcast({}),
-  },
-  {
     title: "Audiences",
     navigateTo: "/dashboard/audiences",
     icon: icons?.users({}),
   },
   {
-    title: "Messages",
-    navigateTo: "/dashboard/messages",
+    title: "Sequence",
+    navigateTo: "/dashboard/sequence",
     icon: icons?.messages({}),
   },
-  // {
-  //   title: "Accounts",
-  //   navigateTo: "/dashboard/accounts",
-  //   icon: icons?.profile({}),
-  // },
-  // {
-  //   title: "CRM",
-  //   navigateTo: "/dashboard/crm",
-  //   icon: icons?.Blocks({}),
-  // },
   {
-    title: "Subscription",
-    navigateTo: "/dashboard/subscription",
-    icon: icons?.CircleDollarSign({}),
+    title: "Campaigns",
+    navigateTo: "/dashboard/campaigns",
+    icon: icons?.broadcast({}),
   },
   {
-    title: "Setting",
-    navigateTo: "/dashboard/setting",
-    icon: icons?.Settings({}),
+    title: "Settings",
+    navigateTo: "/dashboard/settings",
+    icon: icons?.broadcast({}),
   },
   {
     title: "Extension",
@@ -62,12 +47,9 @@ const SidebarDesktopOptions: CustomSidebarOptionType[] = [
 
 const DashboardLayout = ({ children }: LayoutProps) => {
   return (
-    <div className="w-screen h-screen overflow-hidden flex items-start">
-      <SidebarDesktop optionsArray={SidebarDesktopOptions} />
-
+    <div className="w-screen min-h-screen overflow-hidden flex items-start">
+      <Sidebar />
       <main className="flex flex-col flex-1 overflow-hidden h-screen">
-        <NavbarUserDashboard sidebarMobileOptions={SidebarDesktopOptions} />
-
         <div className="flex-1 overflow-auto">{children}</div>
       </main>
     </div>
